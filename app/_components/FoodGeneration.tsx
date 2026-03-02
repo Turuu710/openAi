@@ -4,10 +4,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import openai from "openai/index.js";
-import OpenAI from "openai";
-import { text } from "stream/consumers";
 
 export const FoodGeneration = () => {
   const [prompt, setPrompt] = useState<string>(
@@ -24,20 +20,12 @@ export const FoodGeneration = () => {
       return;
     }
 
-    setIsLoading(true);
     setError(null);
     setResultImage(null);
     setExtractedInfo([]);
-
+    setIsLoading(true);
     try {
       const response = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ prompt }),
-      });
-      const responsExtract = await fetch("/api/extract-info", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -47,16 +35,27 @@ export const FoodGeneration = () => {
       if (!response.ok) {
         throw new Error("Failed to generate image");
       }
-      const dataExtract = await responsExtract.json();
-      if (!responsExtract.ok) {
-        throw new Error("Failed to extract info");
-      }
       const data = await response.json();
       setResultImage(data.image);
-      setExtractedInfo(dataExtract.extractedInfo);
+
+      const extractResponse = await fetch("/api/extract", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ prompt }),
+      });
+
+      const responseExtract = await extractResponse.json();
+
+      if (!extractResponse.ok) {
+        throw new Error("Failed to extract info");
+      }
+
+      setExtractedInfo(responseExtract.formattedText);
     } catch (err) {
       console.error(err);
-      setError("An error occurred while generating the image");
+      setError("An error occurred while generating");
     } finally {
       setIsLoading(false);
     }

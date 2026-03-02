@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export const POST = async (req: Request) => {
   const { prompt } = await req.json();
-  const response = await fetch("https://api.openai/v1/responses", {
+  const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,

@@ -3,7 +3,7 @@ import OpenAI from "openai";
 
 export async function openaiTextToImage(prompt: string) {
   const openai = new OpenAI({
-    apiKey: process.env.OPEN_AI_KEY,
+    apiKey: process.env.OPENAI_API_KEY,
   });
 
   const response = await openai.images.generate({
